@@ -1,22 +1,24 @@
+sudo: required
+language: generic
+
 services:
   - docker
 
 before_install:
-  - docker build -t sameer/fib_client -f ./client/Dockerfile.dev ./client
+  - docker build -t sameer/react-test -f ./client/Dockerfile.dev ./client
 
 script:
-  - docker run sameer/fib_client npm run test -- --coverage
+  - docker run -e CI=true sameer/react-test npm test
 
 after_success:
-  - docker build -t sameer/fib_client ./client
-  - docker build -t sameer/fib_api ./server
-  - docker build -t sameer/fib_worker ./worker
-  - docker build -t sameer/fib_router ./nginx
-
-  # Login to docker
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  # Take image and push to docker hub
-  - docker push sameer/fib_client
-  - docker push sameer/fib_api
-  - docker push sameer/fib_worker
-  - docker push sameer/fib_router
+  - docker build -t sameer/fib-client ./client
+  - docker build -t sameer/fib-nginx ./nginx
+  - docker build -t sameer/fib-server ./server
+  - docker build -t sameer/fib-worker ./worker
+  # Log in to the docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID"--password-stdin
+  # Take those images and push them to docker hub
+  - docker push sameer/fib-client
+  - docker push sameer/fib-nginx
+  - docker push sameer/fib-server
+  - docker push sameer/fib-worker
